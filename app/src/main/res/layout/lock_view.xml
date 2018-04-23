@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+
+    android:background="@mipmap/background_lock">
+    <android.gesture.GestureOverlayView
+        android:id="@+id/myGestureOverlayView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gestureStrokeType="multiple"
+        android:visibility="invisible"></android.gesture.GestureOverlayView>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="向右滑动解锁"
+        android:layout_marginTop="400dp"
+        android:layout_centerHorizontal="true"
+        android:textSize="8pt"
+        />
+
+</RelativeLayout>
