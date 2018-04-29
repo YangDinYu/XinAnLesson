@@ -2,8 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/XinAnLessson.iml" filepath="$PROJECT_DIR$/XinAnLessson.iml" />
+      <module fileurl="file://$PROJECT_DIR$/XinAnLesson.iml" filepath="$PROJECT_DIR$/XinAnLesson.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/fakewechat/fakewechat.iml" filepath="$PROJECT_DIR$/fakewechat/fakewechat.iml" />
     </modules>
   </component>
 </project>
