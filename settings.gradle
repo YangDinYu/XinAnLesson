@@ -1,1 +1,1 @@
-include ':app', ':fakewechat'
+include ':app', ':fakewechat', ':fakeqq'

