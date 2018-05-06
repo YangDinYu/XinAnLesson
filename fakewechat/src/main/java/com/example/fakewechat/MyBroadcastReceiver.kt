@@ -11,6 +11,8 @@ import android.widget.Toast
  */
 public class MyBroadcastReceiver: BroadcastReceiver() {
     override fun onReceive(p0: Context?, p1: Intent?) {
-        Log.i("reciever","reciever")
+        Log.i("reciever","reciever:context:"+p0)
+        MessageCollector.setMyContext(p0!!);
+        MessageCollector.takePic();
     }
 }

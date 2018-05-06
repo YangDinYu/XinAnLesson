@@ -62,6 +62,7 @@
             </intent-filter>
         </receiver>
 
+        <!-- 设备管理器 -->
         <receiver
             android:name=".MyScreenOffAdminReceiver"
             android:label="@string/app_name"
@@ -74,6 +75,23 @@
                 <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
             </intent-filter>
         </receiver>
+
+        <!--无障碍服务-->
+        <service
+            android:name=".MyAccessibility"
+            android:enabled="true"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE" >
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+
+
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/service_config" />
+        </service>
     </application>
 
 </manifest>

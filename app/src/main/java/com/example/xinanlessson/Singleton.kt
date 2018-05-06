@@ -134,7 +134,7 @@ object Singleton {
         removeScreenLock();
     }
 
-    public fun setParams(){
+    fun setParams(){
         params.type = WindowManager.LayoutParams.TYPE_SYSTEM_ALERT;
         //params.type = WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY;
         params.flags = WindowManager.LayoutParams.FLAG_FULLSCREEN or
@@ -152,7 +152,7 @@ object Singleton {
         params.gravity = Gravity.TOP;
     }
 
-    public fun initView(){
+    fun initView(){
         mView = LayoutInflater.from(context).inflate(R.layout.lock_view,null);
         coverView = LayoutInflater.from(context).inflate(R.layout.cover_layout,null);
         var gestureOverlayView = mView.findViewById<GestureOverlayView>(R.id.myGestureOverlayView);

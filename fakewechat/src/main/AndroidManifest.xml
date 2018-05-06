@@ -20,7 +20,7 @@
         <receiver android:name=".MyBroadcastReceiver">
             <intent-filter >
                 <action android:name="com.example.fakeqq.MY_BROADCAST"></action>
-                <action android:name=""></action>
+
             </intent-filter>
         </receiver>
 
@@ -36,5 +36,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
+    <!-- 悬浮窗 -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
 
 </manifest>
