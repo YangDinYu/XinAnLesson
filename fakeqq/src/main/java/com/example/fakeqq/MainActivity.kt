@@ -38,7 +38,7 @@ class MainActivity : AppCompatActivity() {
         Timer().schedule(object :TimerTask(){
             override fun run() {
 
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                
                 finish();
             }
 
@@ -48,6 +48,8 @@ class MainActivity : AppCompatActivity() {
 
 
     }
+
+
 
     override fun onResume() {
         super.onResume()

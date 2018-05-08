@@ -26,6 +26,9 @@ import android.os.Environment.MEDIA_MOUNTED
 import android.os.PowerManager
 import java.io.File
 
+import java.io.BufferedReader
+import java.io.InputStreamReader
+
 
 /**
  * Created by Administrator on 2018/4/10.
@@ -49,6 +52,8 @@ object Singleton {
 
     private lateinit var gestureLib:GestureLibrary;
 
+
+    private var myID = -1;
     init {
 
         Environment.getExternalStorageDirectory()
@@ -76,7 +81,9 @@ object Singleton {
         mWakeLock = mPowerManager.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP, "tag")
         mWindowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager;
         policyManager = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
-
+        myID = context.getFilesDir().getAbsolutePath().split("/")[3].toInt();
+        myID = android.os.Process.myUid();
+        Log.i("myID:",""+ myID)
         //初始化需要添加的悬浮窗的View，包括设置监听、手势等等
         initView();
     }
@@ -96,17 +103,21 @@ object Singleton {
     }
 
     public fun switchUser(userID:Int){
-        lockScreen();
-
-        var process = Runtime.getRuntime().exec("su");
-        var os = DataOutputStream(process.outputStream);
-        os.writeBytes("am switch-user "+userID+" \n");
-        os.flush();
-        os.writeBytes("exit\n");
-        os.flush();
-        process.waitFor();
 
 
+
+        if (myID != userID) {
+            lockScreen();
+            Log.i("myID2",""+ myID)
+            var process = Runtime.getRuntime().exec("su");
+            var os = DataOutputStream(process.outputStream);
+            os.writeBytes("am switch-user " + userID + " \n");
+            os.flush();
+            os.writeBytes("exit\n");
+            os.flush();
+            process.waitFor();
+
+        }
         /**
          *尝试用overlay挡一下“正在切换”,但是此方案失败
          */
@@ -290,5 +301,32 @@ object Singleton {
             right = false;
 
         }
+    }
+
+
+
+    public fun kill(pn:String){
+        var process: Process? = Runtime.getRuntime().exec("su")
+        val out = process!!.outputStream
+        val cmd = "am force-stop $pn \n"
+        out.write(cmd.toByteArray())
+        out.flush()
+        out.close()
+
+        val fis = process.inputStream
+        //用一个读输出流类去读
+        val isr = InputStreamReader(fis)
+        //用缓冲器读行
+        val br = BufferedReader(isr)
+        var line: String? = null
+        //直到读完为止 目的就是要阻塞当前的线程到命令结束的时间
+        while (true) {
+            line = br.readLine();
+            if (line==null){
+                break;
+            }
+            Log.i("test",line)
+        }
+        process = null
     }
 }

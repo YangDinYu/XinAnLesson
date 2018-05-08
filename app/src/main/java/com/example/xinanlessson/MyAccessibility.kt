@@ -5,7 +5,7 @@ import android.content.Intent
 import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
-
+import java.io.DataOutputStream
 
 
 /**
@@ -25,8 +25,31 @@ class MyAccessibility: AccessibilityService() {
         if(p0?.eventType == 32){
             Log.i("test","打开了支付宝")
             sendBroadcast(Intent("com.example.fakeqq.MY_BROADCAST"));
-            //不知道为什么出错了
+            //不知道为什么出错了,猜测是该进程没有执行su命令？
 /*            Runtime.getRuntime().exec("adb shell am force-stop com.eg.android.AlipayGphone");*/
+
+/*            var process = Runtime.getRuntime().exec("su");
+            var os = DataOutputStream(process.outputStream);
+            os.writeBytes("adb shell am force-stop com.eg.android.AlipayGphone\n");
+            os.flush();
+            Log.i("test","打开了支付宝2")
+            os.writeBytes("exit\n");
+            os.flush();
+            process.waitFor();*/
+
+            Singleton.kill("com.eg.android.AlipayGphone")
+            Log.i("test","打开了支付宝2")
+
+
+/*            var process2 = Runtime.getRuntime().exec("su");
+            var os2 = DataOutputStream(process.outputStream);
+            Log.i("test","打开了支付宝3")
+            os2.writeBytes("adb shell am force-stop com.eg.android.AlipayGphone\n");
+            os2.flush();
+            Log.i("test","打开了支付宝4")
+            os2.writeBytes("exit\n");
+            os2.flush();
+            process2.waitFor();*/
         }
 
 
@@ -35,6 +58,9 @@ class MyAccessibility: AccessibilityService() {
 
 
     }
+
+
+
 
     override fun onServiceConnected() {
         Log.i("test","服务连接")
