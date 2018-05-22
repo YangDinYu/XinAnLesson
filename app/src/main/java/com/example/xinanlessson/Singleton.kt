@@ -164,7 +164,9 @@ object Singleton {
     }
 
     fun initView(){
+
         mView = LayoutInflater.from(context).inflate(R.layout.lock_view,null);
+
         coverView = LayoutInflater.from(context).inflate(R.layout.cover_layout,null);
         var gestureOverlayView = mView.findViewById<GestureOverlayView>(R.id.myGestureOverlayView);
         gestureOverlayView.gestureColor = Color.BLUE;
@@ -183,9 +185,6 @@ object Singleton {
 
 /*               gestureLib.addGesture("gestureName", gesture)
                 gestureLib.save();*/
-
-
-
                 //gestureLib.removeEntry("gestureName")
                 val predictions = gestureLib.recognize(gesture)
 

@@ -10,6 +10,9 @@ import org.apache.commons.net.ftp.FTPFile
 import android.R.attr.port
 import org.apache.commons.net.ftp.FTPReply
 import org.apache.commons.net.imap.IMAPReply.getReplyCode
+import android.content.ContentResolver
+
+
 
 
 
@@ -22,6 +25,7 @@ import org.apache.commons.net.imap.IMAPReply.getReplyCode
 object MyFTPClient {
 
     public lateinit var ftpClient:FTPClient;
+
 
     init {
         ftpClient = FTPClient();
@@ -81,6 +85,7 @@ object MyFTPClient {
         var flag = false
         var inputStream: InputStream? = null
         try {
+
             println("开始上传文件")
             inputStream = FileInputStream(File(originfilename))
 
